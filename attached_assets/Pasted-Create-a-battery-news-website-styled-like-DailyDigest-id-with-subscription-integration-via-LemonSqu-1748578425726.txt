@@ -1,0 +1,103 @@
+Create a battery news website styled like DailyDigest.id, with subscription integration via LemonSqueezy, admin article management (free vs premium), and full access control. 
+________________________________________
+⚡️ Battery News Website with Subscription & Admin Management
+________________________________________
+🏗️ Website Architecture & Tech Stack
+•	Frontend: React or Next.js for a modern, responsive UI similar to DailyDigest.id.
+•	Backend: Node.js with Express or a serverless backend (e.g., Replit’s built-in backend) to handle API requests.
+•	Database: Use a simple database like SQLite or MongoDB to store articles, users, and subscription status.
+•	Authentication: Implement user authentication (email/password or OAuth) to manage subscribers and admins.
+•	Subscription: Integrate LemonSqueezy for subscription payments and webhook handling.
+•	Hosting: Deploy on Replit with continuous deployment.
+________________________________________
+🎨 UI/UX Design
+•	Homepage: Clean, minimalist layout with a list of articles, showing title, snippet, date, and author.
+•	Article List: Articles marked with badges:
+•	🔓 Free articles
+•	🔒 Premium articles (subscription required)
+•	Article Page:
+•	Free articles show full content.
+•	Premium articles show teaser (first few paragraphs) with a call-to-action to subscribe.
+•	Subscription Page: Simple page explaining subscription benefits and payment via LemonSqueezy.
+•	Admin Dashboard: Secure admin panel to create, edit, and publish articles, with a toggle to mark articles as free or premium.
+________________________________________
+🔑 Features & Functionalities
+1. Article Management
+•	Articles have fields: id, title, content, author_id, published, is_premium, created_at, updated_at.
+•	Admins can create/edit articles and toggle is_premium to mark premium content.
+•	Articles default to free unless marked premium.
+2. User Roles & Authentication
+•	Admin: Can manage articles and mark premium/free.
+•	Subscriber: Has access to premium content.
+•	Guest/Non-subscriber: Can only access free articles and see teasers for premium.
+3. Subscription Integration with LemonSqueezy
+•	Use LemonSqueezy’s API and webhooks to:
+•	Handle subscription payments.
+•	Update user subscription status in your database.
+•	Protect premium content by checking subscription status before serving full content.
+4. Access Control Logic
+User Type	Access to Free Articles	Access to Premium Articles
+Guest (not logged in)	✅ Full access	❌ Redirect to subscribe/login
+Logged-in Non-subscriber	✅ Full access	❌ Prompt to subscribe
+Logged-in Subscriber	✅ Full access	✅ Full access
+•	Backend enforces access control to prevent unauthorized access.
+•	Frontend shows teaser and subscription prompts for premium articles.
+________________________________________
+🛠️ Implementation Details & Code Snippets
+Article Schema Example (MongoDB)
+js
+const ArticleSchema = new mongoose.Schema({
+  title: String,
+  content: String,
+  author_id: mongoose.Schema.Types.ObjectId,
+  published: Boolean,
+  is_premium: { type: Boolean, default: false },
+  created_at: { type: Date, default: Date.now },
+  updated_at: { type: Date, default: Date.now }
+});
+Admin Article Form Snippet (React)
+jsx
+<label>
+  <input
+    type="checkbox"
+    checked={isPremium}
+    onChange={() => setIsPremium(!isPremium)}
+  />
+  Mark as Premium Article (Subscription Required)
+</label>
+Backend Access Control Middleware (Express.js)
+js
+function checkSubscription(req, res, next) {
+  const article = req.article; // fetched article
+  const user = req.user; // authenticated user
+
+  if (!article.is_premium) {
+    return next(); // free article, allow access
+  }
+
+  if (!user) {
+    return res.status(401).json({ message: 'Please log in to access premium content.' });
+  }
+
+  if (!user.isSubscribed) {
+    return res.status(403).json({ message: 'Subscription required to access this article.' });
+  }
+
+  next();
+}
+________________________________________
+🔗 LemonSqueezy Integration Steps
+1.	Create a LemonSqueezy account and set up your subscription product.
+2.	Use LemonSqueezy API to create checkout links for subscriptions.
+3.	Implement webhook endpoint on your backend to listen for subscription events (e.g., new subscription, cancellation).
+4.	Update user subscription status in your database based on webhook events.
+5.	Protect premium content by checking subscription status before serving.
+________________________________________
+📋 Summary Table
+Feature	Description	Implementation Notes
+Article Management	Create/edit articles with free/premium toggle	Admin dashboard with checkbox toggle
+User Authentication	Login/signup for users and admins	JWT or session-based auth
+Subscription Integration	LemonSqueezy for payments and subscription status	API + webhook handling
+Access Control	Restrict premium content to subscribers	Backend middleware + frontend UI hints
+UI Design	Clean, minimalist, DailyDigest.id inspired	React/Next.js with badges and teasers
+
